@@ -6,6 +6,8 @@ import Effect.Unsafe (unsafePerformEffect)
 import Node.Path (FilePath)
 import Node.Path as Path
 import Node.Process as Process
+import Data.Array (cons, replicate, reverse)
+import Data.String (joinWith)
 
 type NodePaths =
   { config :: FilePath
@@ -37,6 +39,17 @@ toLocalCachePath rootDir = Path.concat [ rootDir, ".spago" ]
 
 toLocalCachePackagesPath :: FilePath -> FilePath
 toLocalCachePackagesPath rootDir = Path.concat [ toLocalCachePath rootDir, "p" ]
+
+-- search maximum 4 levels up the tree to find the Git project, if it exists
+toGitSearchPath :: FilePath -> Array FilePath
+toGitSearchPath rootDir = reverse $ makeSearchPaths rootDir 2 where
+  makeSearchPath :: FilePath -> Int -> FilePath
+  makeSearchPath wd i = joinWith "" $ cons wd $ cons "/" $ replicate i "../"
+
+  makeSearchPaths :: FilePath -> Int -> Array FilePath
+  makeSearchPaths wd 0 = pure wd
+  makeSearchPaths wd i | i > 0 = cons (makeSearchPath wd i) (makeSearchPaths wd (i - 1))
+  makeSearchPaths _ _ = mempty
 
 registryPath ∷ FilePath
 registryPath = Path.concat [ globalCachePath, "registry" ]
