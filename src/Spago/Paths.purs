@@ -40,7 +40,7 @@ toLocalCachePath rootDir = Path.concat [ rootDir, ".spago" ]
 toLocalCachePackagesPath :: FilePath -> FilePath
 toLocalCachePackagesPath rootDir = Path.concat [ toLocalCachePath rootDir, "p" ]
 
--- search maximum 4 levels up the tree to find the Git project, if it exists
+-- search maximum 4 levels up the tree to find all other `spago.yaml`, which may contain workspace definition
 toGitSearchPath :: FilePath -> Array FilePath
 toGitSearchPath rootDir = reverse $ makeSearchPaths rootDir 4 where
   makeSearchPath :: FilePath -> Int -> FilePath
